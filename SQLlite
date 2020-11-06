@@ -1,0 +1,80 @@
+package com.example.datacollectorapp;
+
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+public class SQLiteDBHelper extends SQLiteOpenHelper {
+
+    // All Static variables
+    // Database Version
+    private static final int DATABASE_VERSION = 3;
+
+    // Database Name
+    private static final String DATABASE_NAME = "dataManager";
+
+
+    public static final String PERSON_TABLE_NAME = "acc_data";
+    public static final String PERSON_COLUMN_ID = "_id";
+    public static final String PERSON_COLUMN_NAME = "x";
+    public static final String PERSON_COLUMN_AGE = "y";
+    public static final String PERSON_COLUMN_GENDER = "z";
+
+    public SQLiteDBHelper(Context context) {
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+
+    @Override
+    public void onCreate(SQLiteDatabase sqLiteDatabase) {
+        sqLiteDatabase.execSQL("CREATE TABLE " + PERSON_TABLE_NAME + " (" +
+                PERSON_COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                PERSON_COLUMN_NAME + " TEXT, " +
+                PERSON_COLUMN_AGE + " INT , " +
+                PERSON_COLUMN_GENDER + " TEXT" + ")");
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + PERSON_TABLE_NAME);
+        onCreate(sqLiteDatabase);
+    }
+
+    // Getting All Acc data history
+    public List<AccDataModel> getAllAccData() {
+        List<AccDataModel> historyList = new ArrayList<AccDataModel>();
+        // Select All Query
+        String selectQuery = "SELECT  * FROM " + PERSON_TABLE_NAME;
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        // looping through all rows and adding to list
+
+        if(cursor!=null && cursor.getCount() > 0) {
+            if (cursor.moveToFirst()) {
+                do {
+                    AccDataModel contact = new AccDataModel();
+                    // contact.setID(Integer.parseInt(cursor.getString(0)));
+                    contact.setId(Integer.parseInt(cursor.getString(0)));
+                    contact.setX(cursor.getString(1));
+                    contact.setY(cursor.getString(2));
+                    contact.setZ(cursor.getString(3));
+
+                    // Adding contact to list
+                    historyList.add(contact);
+                } while (cursor.moveToNext());
+            }
+
+        }
+
+        // return history list
+        return historyList;
+    }
+
+}
+
